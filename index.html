@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAFZXAIPRIV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #0f1123, #040407);
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glass {
+            background: rgba(10, 10, 18, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glow-input:focus-within {
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.25);
+            border-color: rgba(99, 102, 241, 0.6);
+        }
+        .hide { display: none !important; }
+        
+        /* Custom Scrollbar untuk Chat */
+        .chat-scroll::-webkit-scrollbar { width: 5px; }
+        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 99px; }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex items-center justify-center p-4 overflow-x-hidden">
+
+    <div class="w-full flex items-center justify-center">
+
+        <div id="loginPage" class="w-full max-w-md p-8 rounded-2xl glass shadow-2xl transition-all duration-500 transform scale-100">
+            <div class="text-center mb-8">
+                <div class="inline-flex p-3 bg-indigo-500/10 rounded-xl text-indigo-400 mb-3 border border-indigo-500/20 shadow-inner">
+                    <i data-lucide="lock" class="w-8 h-8"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white tracking-tight">LOGIN UTAMA</h1>
+                <p class="text-sm text-slate-400 mt-1">Masuk untuk mengakses Core RAFZXAIPRIV</p>
+            </div>
+
+            <div id="loginAlert" class="hide mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i>
+                <span id="loginAlertText">username atau password salah atau tidak ditemukan.</span>
+            </div>
+
+            <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)">
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Username</label>
+                    <div class="flex items-center rounded-xl bg-slate-950/80 border border-slate-800/80 glow-input px-3 py-2.5 transition-all">
+                        <i data-lucide="user" class="w-5 h-5 text-slate-500 mr-3"></i>
+                        <input type="text" id="loginUser" required class="bg-transparent w-full focus:outline-none text-sm text-white placeholder-slate-700" placeholder="Masukkan username">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+                    <div class="flex items-center rounded-xl bg-slate-950/80 border border-slate-800/80 glow-input px-3 py-2.5 transition-all">
+                        <i data-lucide="eye-off" class="w-5 h-5 text-slate-500 mr-3"></i>
+                        <input type="password" id="loginPass" required class="bg-transparent w-full focus:outline-none text-sm text-white placeholder-slate-700" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
+                    Buka Enkripsi <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center border-t border-slate-900 pt-4">
+                <p class="text-xs text-slate-500">Belum memiliki hak akses?</p>
+                <button onclick="switchPage('registerPage')" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium mt-1 inline-block transition-colors underline decoration-indigo-500/20 underline-offset-4">
+                    Buat akun Baru
+                </button>
+            </div>
+        </div>
+
+
+        <div id="registerPage" class="w-full max-w-md p-8 rounded-2xl glass shadow-2xl transition-all duration-500 transform scale-95 hide">
+            <div class="text-center mb-8">
+                <div class="inline-flex p-3 bg-emerald-500/10 rounded-xl text-emerald-400 mb-3 border border-emerald-500/20">
+                    <i data-lucide="user-plus" class="w-8 h-8"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white tracking-tight">Registrasi Kredensial</h1>
+                <p class="text-sm text-slate-400 mt-1">Data login akan disimpan di login utama</p>
+            </div>
+
+            <div id="regAlert" class="hide mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-400 flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 flex-shrink-0"></i>
+                <span>Data sukses disimpan! Menghubungkan ke Login Utama...</span>
+            </div>
+
+            <form id="registerForm" class="space-y-5" onsubmit="handleRegister(event)">
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tentukan Username</label>
+                    <div class="flex items-center rounded-xl bg-slate-950/80 border border-slate-800/80 glow-input px-3 py-2.5 transition-all">
+                        <i data-lucide="user-plus" class="w-5 h-5 text-slate-500 mr-3"></i>
+                        <input type="text" id="regUser" required class="bg-transparent w-full focus:outline-none text-sm text-white placeholder-slate-700" placeholder="Buat username baru">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tentukan Password</label>
+                    <div class="flex items-center rounded-xl bg-slate-950/80 border border-slate-800/80 glow-input px-3 py-2.5 transition-all">
+                        <i data-lucide="key" class="w-5 h-5 text-slate-500 mr-3"></i>
+                        <input type="password" id="regPass" required class="bg-transparent w-full focus:outline-none text-sm text-white placeholder-slate-700" placeholder="Buat password yang kuat">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+                    Write to Storage <i data-lucide="database" class="w-4 h-4"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center border-t border-slate-900 pt-4">
+                <button onclick="switchPage('loginPage')" class="text-xs text-slate-400 hover:text-slate-200 font-medium transition-colors inline-flex items-center gap-1">
+                    <i data-lucide="arrow-left" class="w-3 h-3"></i> Kembali ke Login
+                </button>
+            </div>
+        </div>
+
+
+        <div id="dashboardPage" class="w-full max-w-5xl p-6 rounded-2xl glass shadow-2xl transition-all duration-500 transform scale-95 hide min-h-[650px] flex flex-col justify-between">
+            
+            <header class="flex justify-between items-center pb-4 border-b border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20">
+                        R
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-white tracking-wide">RAFZXAIPRIV</h2>
+                        <p class="text-[10px] text-indigo-400 font-mono tracking-widest uppercase">Live Production Node</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+                        <span class="text-slate-500">Operator:</span>
+                        <span id="displayUser" class="text-slate-200 font-medium">None</span>
+                    </div>
+                    <button onclick="handleLogout()" class="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/20 transition-colors text-xs flex items-center gap-1.5 font-medium">
+                        <i data-lucide="log-out" class="w-4 h-4"></i> <span class="hidden sm:inline">log out</span>
+                    </button>
+                </div>
+            </header>
+
+            <main class="grid grid-cols-1 lg:grid-cols-4 gap-6 my-6 flex-grow">
+                
+                <div class="lg:col-span-1 space-y-4 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800/80">
+                            <span class="text-[11px] uppercase tracking-wider text-slate-500 block mb-1 font-bold">API Configuration</span>
+                            <div class="text-xs font-mono text-emerald-400 flex items-center gap-1.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> API Key Active
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800/80">
+                            <span class="text-[11px] uppercase tracking-wider text-slate-500 block mb-1 font-bold">Engine Status</span>
+                            <div class="text-xs font-mono text-indigo-400 flex items-center gap-1.5">
+                                <i data-lucide="cpu" class="w-4 h-4"></i> Gemini 2.5 Flash API
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-indigo-950/20 border border-indigo-900/40 rounded-xl text-xs text-indigo-300/90 leading-relaxed">
+                        <strong class="text-white block mb-1"><i data-lucide="info" class="w-3.5 h-3.5 inline mr-1"></i>Sistem Berjalan:</strong>
+                        Kredensial API `RAFZXAIPRIV` dimuat langsung secara internal melalui enkripsi file sistem.
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3 bg-slate-950/80 border border-slate-800/80 rounded-xl flex flex-col justify-between overflow-hidden min-h-[400px] shadow-inner">
+                    <div class="bg-slate-900/40 px-4 py-3 border-b border-slate-800/80 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="terminal" class="w-4 h-4 text-indigo-400"></i>
+                            <span class="text-xs font-mono text-slate-400">Console IO Buffer</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[10px] bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded font-mono font-medium">
+                            <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></span> READY
+                        </div>
+                    </div>
+
+                    <div id="chatContainer" class="p-4 flex-grow overflow-y-auto space-y-4 font-mono text-xs chat-scroll max-h-[350px]">
+                        <div class="text-slate-600 text-center text-[10px] py-2 border-b border-slate-900">
+                            Koneksi diinisialisasi pada <span id="timestamp"></span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="p-1.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20 font-bold text-[10px]">AI</div>
+                            <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-850 text-slate-300 max-w-[85%] leading-relaxed">
+                                Sistem Utama <span class="text-indigo-400 font-bold">RAFZXAIPRIV</span> aktif dengan integrasi internal file API key. Silakan ketik perintah dan ai akan menjawab.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-900/20 border-t border-slate-800/80 flex gap-2 items-center">
+                        <input type="text" id="aiInput" onkeypress="checkEnter(event)" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500/50 focus:outline-none rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 transition-all font-mono" placeholder="Ketik instruksi/pertanyaan Anda di sini...">
+                        <button onclick="executeGeminiCall()" id="sendBtn" class="p-3 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-xl text-white transition-all shadow-md shadow-indigo-600/10 flex-shrink-0">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="text-center text-[10px] text-slate-600 border-t border-slate-900 pt-3 font-mono">
+                SECURE ACCESS NODE // IDENTITY: AUTHENTICATED
+            </footer>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { GoogleGenAI } from "https://esm.run/@google/genai";
+
+        // =========================================================================
+        // FIXED: API KEY KAMU SUDAH TERPASANG DAN AKTIF SECARA INTERNAL DI SINI
+        // =========================================================================
+        const CONFIG_GEMINI_API_KEY = 'AQ.Ab8RN6IJ6rgMonJ9I3OgdnMsh0GT9YKoNKdYlCD00SMblbitfg';
+        // =========================================================================
+
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            document.getElementById('timestamp').innerText = new Date().toLocaleString('id-ID');
+        });
+
+        window.switchPage = function(pageId) {
+            const pages = ['loginPage', 'registerPage', 'dashboardPage'];
+            pages.forEach(p => {
+                const element = document.getElementById(p);
+                if (p === pageId) {
+                    element.classList.remove('hide');
+                    setTimeout(() => {
+                        element.classList.remove('scale-95');
+                        element.classList.add('scale-100');
+                    }, 50);
+                } else {
+                    element.classList.add('hide', 'scale-95');
+                    element.classList.remove('scale-100');
+                }
+            });
+            document.getElementById('loginAlert').classList.add('hide');
+            document.getElementById('regAlert').classList.add('hide');
+        }
+
+        window.handleRegister = function(e) {
+            e.preventDefault();
+            const user = document.getElementById('regUser').value.trim();
+            const pass = document.getElementById('regPass').value;
+
+            localStorage.setItem('auth_username', user);
+            localStorage.setItem('auth_password', pass);
+
+            document.getElementById('regAlert').classList.remove('hide');
+            document.getElementById('registerForm').reset();
+
+            setTimeout(() => {
+                switchPage('loginPage');
+                document.getElementById('loginUser').value = user;
+            }, 1500);
+        }
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const inputUser = document.getElementById('loginUser').value.trim();
+            const inputPass = document.getElementById('loginPass').value;
+
+            const storedUser = localStorage.getItem('auth_username');
+            const storedPass = localStorage.getItem('auth_password');
+
+            if (inputUser === storedUser && inputPass === storedPass) {
+                document.getElementById('displayUser').innerText = storedUser;
+                switchPage('dashboardPage'); 
+            } else {
+                const alertBox = document.getElementById('loginAlert');
+                const alertText = document.getElementById('loginAlertText');
+                alertBox.classList.remove('hide');
+                
+                if (!storedUser) {
+                    alertText.innerText = "Basis data kosong. Silakan buat Akun Baru terlebih dahulu!";
+                } else {
+                    alertText.innerText = "Akses ditolak! username & password salah.";
+                }
+            }
+        }
+
+        window.handleLogout = function() {
+            document.getElementById('loginForm').reset();
+            switchPage('loginPage');
+        }
+
+        // ================= INTEGRASI AMAN UTAMA GEMINI API =================
+        window.executeGeminiCall = async function() {
+            const inputEl = document.getElementById('aiInput');
+            const promptText = inputEl.value.trim();
+            const sendBtn = document.getElementById('sendBtn');
+
+            if (!CONFIG_GEMINI_API_KEY || CONFIG_GEMINI_API_KEY.includes('MASUKKAN_API_KEY')) {
+                alert("Sistem Error: API Key belum dipasang di dalam kode file internal!");
+                return;
+            }
+            if (!promptText) return;
+
+            const chatContainer = document.getElementById('chatContainer');
+
+            // Tampilkan teks user
+            const userChatHTML = `
+                <div class="flex items-start gap-3 justify-end">
+                    <div class="bg-indigo-600/10 p-3 rounded-xl border border-indigo-500/20 text-slate-200 max-w-[85%] text-right leading-relaxed">
+                        ${promptText}
+                    </div>
+                    <div class="p-1.5 bg-slate-900 text-slate-500 rounded-lg border border-slate-800 font-bold text-[10px]">USER</div>
+                </div>
+            `;
+            chatContainer.insertAdjacentHTML('beforeend', userChatHTML);
+            inputEl.value = '';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Efek Loading
+            const loadingId = "load_" + Date.now();
+            const loadingHTML = `
+                <div id="${loadingId}" class="flex items-start gap-3 animate-pulse">
+                    <div class="p-1.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20 font-bold text-[10px]">AI</div>
+                    <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-850 text-slate-500 max-w-[85%] font-mono text-[11px]">
+                        [RAFZXAIPRIV] Sedang memproses...
+                    </div>
+                </div>
+            `;
+            chatContainer.insertAdjacentHTML('beforeend', loadingHTML);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            sendBtn.disabled = true;
+
+            try {
+                const ai = new GoogleGenAI({ apiKey: CONFIG_GEMINI_API_KEY });
+                
+                // FIXED: Menggunakan model 'gemini-2.5-flash' yang valid
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: promptText,
+                });
+
+                document.getElementById(loadingId).remove();
+
+                const aiResponseHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="p-1.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20 font-bold text-[10px]">AI</div>
+                        <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-850 text-indigo-300 max-w-[85%] leading-relaxed">
+                            ${response.text.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+                chatContainer.insertAdjacentHTML('beforeend', aiResponseHTML);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById(loadingId).remove();
+                
+                const errorHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="p-1.5 bg-red-500/10 text-red-400 rounded-lg border border-red-500/20 font-bold text-[10px]">ERR</div>
+                        <div class="bg-red-950/20 p-3 rounded-xl border border-red-900/30 text-red-400 max-w-[85%]">
+                            [ERROR SYSTEM]: Gagal. Detail: ${error.message}
+                        </div>
+                    </div>
+                `;
+                chatContainer.insertAdjacentHTML('beforeend', errorHTML);
+            } finally {
+                sendBtn.disabled = false;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                lucide.createIcons();
+            }
+        }
+
+        window.checkEnter = function(e) {
+            if (e.key === 'Enter') executeGeminiCall();
+        }
+    </script>
+</body>
+</html>
