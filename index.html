@@ -42,7 +42,7 @@
                     <i data-lucide="lock" class="w-8 h-8"></i>
                 </div>
                 <h1 class="text-2xl font-bold text-white tracking-tight">LOGIN UTAMA</h1>
-                <p class="text-sm text-slate-400 mt-1">Masuk untuk mengakses RAFZXAIPRIV</p>
+                <p class="text-sm text-slate-400 mt-1">Masuk untuk accessing RAFZXAIPRIV</p>
             </div>
 
             <div id="loginAlert" class="hide mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
@@ -198,7 +198,23 @@
                         </div>
                     </div>
 
+                    <div id="imagePreviewContainer" class="hide px-4 py-2 bg-slate-900/60 border-t border-slate-800/80 flex items-center gap-2">
+                        <div class="relative inline-block">
+                            <img id="imagePreview" class="w-16 h-16 object-cover rounded-lg border border-slate-700 shadow-md">
+                            <button onclick="window.clearSelectedImage()" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow">
+                                <i data-lucide="x" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                        <span id="imageName" class="text-[10px] text-slate-400 font-mono truncate max-w-[200px]"></span>
+                    </div>
+
                     <div class="p-3 bg-slate-900/20 border-t border-slate-800/80 flex gap-2 items-center">
+                        <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="window.handleImageSelect(event)">
+                        
+                        <button onclick="document.getElementById('imageInput').click()" id="galleryBtn" class="p-3 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 rounded-xl text-slate-300 transition-all border border-slate-700/60 flex-shrink-0">
+                            <i data-lucide="image" class="w-4 h-4"></i>
+                        </button>
+
                         <input type="text" id="aiInput" onkeypress="checkEnter(event)" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500/50 focus:outline-none rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 transition-all font-mono" placeholder="Ketik instruksi/pertanyaan Anda di sini...">
                         <button onclick="executeGeminiCall()" id="sendBtn" class="p-3 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-xl text-white transition-all shadow-md shadow-indigo-600/10 flex-shrink-0">
                             <i data-lucide="send" class="w-4 h-4"></i>
@@ -221,8 +237,11 @@
         // =========================================================================
         // FIXED: API KEY KAMU SUDAH TERPASANG DAN AKTIF SECARA INTERNAL DI SINI
         // =========================================================================
-        const CONFIG_GEMINI_API_KEY = 'AIzaSyD4SIQfg0ieZ50QvA1KfrH29rkNIaJJ_X0';
+        const CONFIG_GEMINI_API_KEY = 'AQ.Ab8RN6KOrmBAa0UTHdGJkCru8rn0eTJIajcSJ3xRYwaYE-CP-w';
         // =========================================================================
+
+        // Variable global untuk menampung data Base64 gambar (DITAMBAHKAN)
+        let selectedImageData = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
@@ -294,6 +313,39 @@
             switchPage('loginPage');
         }
 
+        // LOGIKA BARU UNTUK HANDLE PILIH FOTO (DITAMBAHKAN)
+        window.handleImageSelect = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Data = event.target.result.split(',')[1];
+                selectedImageData = {
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: file.type
+                    }
+                };
+
+                // Tampilkan container preview gambar di UI
+                document.getElementById('imagePreview').src = event.target.result;
+                document.getElementById('imageName').innerText = file.name;
+                document.getElementById('imagePreviewContainer').classList.remove('hide');
+                lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // LOGIKA BARU UNTUK BATALKAN PILIH FOTO (DITAMBAHKAN)
+        window.clearSelectedImage = function() {
+            selectedImageData = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreviewContainer').classList.add('hide');
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('imageName').innerText = '';
+        }
+
         // ================= INTEGRASI AMAN UTAMA GEMINI API =================
         window.executeGeminiCall = async function() {
             const inputEl = document.getElementById('aiInput');
@@ -304,15 +356,22 @@
                 alert("Sistem Error: API Key belum dipasang di dalam kode file internal!");
                 return;
             }
-            if (!promptText) return;
+            if (!promptText && !selectedImageData) return;
 
             const chatContainer = document.getElementById('chatContainer');
 
-            // Tampilkan teks user
+            // Set visual render jika ada gambar yang di-upload oleh user (DITAMBAHKAN)
+            let userImageHTML = '';
+            if (selectedImageData) {
+                userImageHTML = `<img src="data:${selectedImageData.inlineData.mimeType};base64,${selectedImageData.inlineData.data}" class="w-24 h-24 object-cover rounded-lg border border-slate-700/50 mb-2 mt-1 block ml-auto">`;
+            }
+
+            // Tampilkan teks user (+ gambar jika ada)
             const userChatHTML = `
                 <div class="flex items-start gap-3 justify-end">
                     <div class="bg-indigo-600/10 p-3 rounded-xl border border-indigo-500/20 text-slate-200 max-w-[85%] text-right leading-relaxed">
-                        ${promptText}
+                        ${userImageHTML}
+                        <span>${promptText || "(Mengirim Foto)"}</span>
                     </div>
                     <div class="p-1.5 bg-slate-900 text-slate-500 rounded-lg border border-slate-800 font-bold text-[10px]">USER</div>
                 </div>
@@ -339,10 +398,24 @@
             try {
                 const ai = new GoogleGenAI({ apiKey: CONFIG_GEMINI_API_KEY });
                 
+                // Siapkan payload request array contents (MENDUKUNG MULTIMODAL GAMBAR + TEKS)
+                const contentPayload = [];
+                if (selectedImageData) {
+                    contentPayload.push(selectedImageData);
+                }
+                if (promptText) {
+                    contentPayload.push(promptText);
+                } else if (selectedImageData && !promptText) {
+                    contentPayload.push("Deskripsikan atau analisis gambar ini.");
+                }
+
+                // Bersihkan draf form gambar agar user bisa langsung pilih gambar baru lagi
+                window.clearSelectedImage();
+
                 // FIXED: Menggunakan model 'gemini-2.5-flash' yang valid
                 const response = await ai.models.generateContent({
                     model: 'gemini-2.5-flash',
-                    contents: promptText,
+                    contents: contentPayload,
                 });
 
                 document.getElementById(loadingId).remove();
